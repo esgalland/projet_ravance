@@ -1,51 +1,89 @@
-#
-# This is a Shiny web application. You can run the application by clicking
-# the 'Run App' button above.
-#
-# Find out more about building applications with Shiny here:
-#
-#    https://shiny.posit.co/
-#
-
+library(ggplot2)
+library(rAmCharts)
 library(shiny)
+library(shinydashboard)
+library(dplyr)
 
-# Define UI for application that draws a histogram
-ui <- fluidPage(
 
-    # Application title
-    titlePanel("Old Faithful Geyser Data"),
+###Données
 
-    # Sidebar with a slider input for number of bins 
-    sidebarLayout(
-        sidebarPanel(
-            sliderInput("bins",
-                        "Number of bins:",
-                        min = 1,
-                        max = 50,
-                        value = 30)
-        ),
+choix_chaine <- unique(data_rep_tv$chaine)[-(1:3)]
+choix_media <- c("télévision","radio")
+choix_frequence <- unique(data_rep_radio$chaine)[-(1:3)]
 
-        # Show a plot of the generated distribution
-        mainPanel(
-           plotOutput("distPlot")
-        )
+####UI
+ui <- dashboardPage(
+  dashboardHeader(title = "L'audiovisuel en France"),
+  dashboardSidebar(
+      conditionalPanel(condition="input.tabselected==2",
+                       selectInput(inputId = "media_id",
+                                   label = "choisissez le média",
+                                   choices = choix_media),
+                       
+      )
+  ),
+  dashboardBody(
+    tabsetPanel(
+        tabPanel("Les thématiques"),
+        tabPanel("Le temps de parole des femmes", value = 2,
+                 uiOutput("plot_rep", click = "plot_click"),
+                 uiOutput("chaine_id"),
+                 uiOutput("plot_rep_chaine")
+        ),id = "tabselected"
     )
+  )
 )
 
-# Define server logic required to draw a histogram
+###Server
 server <- function(input, output) {
-
-    output$distPlot <- renderPlot({
-        # generate bins based on input$bins from ui.R
-        x    <- faithful[, 2]
-        bins <- seq(min(x), max(x), length.out = input$bins + 1)
-
-        # draw the histogram with the specified number of bins
-        hist(x, breaks = bins, col = 'darkgray', border = 'white',
-             xlab = 'Waiting time to next eruption (in mins)',
-             main = 'Histogram of waiting times')
-    })
+  
+  output$plot_rep <- renderUI(
+    if(input$media_id == "télévision"){
+      renderPlotly(ggplotly(ggplot(data_mediane, aes(x = Year, ymin = 0, y = representation, group = chaine, colour = chaine))+
+          geom_line()+
+          geom_point()+
+          theme_minimal()+
+          ggtitle("Médianes du taux de représentation des femmes à la télé en fonction du temps"))
+        )
+    }else{
+      renderPlotly(ggplotly(ggplot(data_mediane_radio, aes(x = Year, ymin = 0, y = representation, group = chaine, colour = chaine))+
+                   geom_line()+
+                   geom_point()+
+                   theme_minimal()+
+                   ggtitle("Médianes du taux de représentation des femmes à la radio en fonction du temps")))
+    }
+  )
+  
+  output$chaine_id <- renderUI(
+      if(input$media_id == "télévision"){
+        selectInput(inputId = "chaine_tv_id",
+                    label = "choisissez la chaine de télé",
+                    choices = choix_chaine)
+      }else{
+        selectInput(inputId = "chaine_radio_id",
+                    label = "choisissez la fréquence",
+                    choices = choix_frequence)
+      }
+  )
+  
+  output$plot_rep_chaine<- renderUI({
+    if(input$media_id == "télévision"){
+        renderPlotly(ggplotly(ggplot(data <- data_rep_tv %>% filter(chaine == as.character(input$chaine_tv_id)), aes(x = Year, ymin = 0, y = representation))+
+          geom_line()+
+          geom_point()+
+          theme_minimal()+
+          ggtitle(paste0("Médianes du taux de représentation des femmes sur la chaine ",as.character(input$chaine_tv_id), " en fonction de l'année"))
+        ))  
+    }else{
+      renderPlotly(ggplotly(ggplot(data <- data_rep_radio %>% filter(chaine == as.character(input$chaine_radio_id)), aes(x = Year, ymin = 0, y = representation))+
+                   geom_line()+
+                   geom_point()+
+                   theme_minimal()+
+                   ggtitle(paste0("Médianes du taux de représentation des femmes sur la chaine ",as.character(input$chaine_radio_id), " en fonction de l'année"))))
+      
+    }
+  })
 }
 
-# Run the application 
+###RUN
 shinyApp(ui = ui, server = server)
