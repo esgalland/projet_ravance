@@ -54,3 +54,4 @@ data_rep_radio$representation <- as.numeric(data_rep_radio$representation)
 
 data_mediane_radio <- data_rep_radio %>%
   filter(chaine == "Mediane" | chaine == "Mediane_prive" | chaine == "Mediane_public")
+
