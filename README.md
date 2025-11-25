@@ -12,7 +12,7 @@ Projet R Shiny pour l'UE R Avancé, répondant au défi ["Les Françaises et Fra
 ### 1. Thématiques à la télévision
 - Visualisation des sujets par thème et par chaîne au fil des années.
 - Analyse de la proximité entre chaînes via Random Forest.
-- Graphique interactif de l’**importance des thèmes**.
+- Graphique interactif de l’importance des thèmes.
 
 ### 2. Représentation des femmes
 - Taux de représentation à la télévision et à la radio.
