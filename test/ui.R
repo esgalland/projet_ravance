@@ -13,10 +13,6 @@ dashboardPage(
                                  label = "Choisissez le média",
                                  choices = choix_media)
     ),
-    conditionalPanel(condition="input.tabselected==1",
-                     selectInput("chaine_theme_id", "Choisissez la chaîne", choices = liste_chaines),
-                     selectInput("theme_id", "Choisissez le thème", choices = liste_themes)
-  ),
   conditionalPanel(
     condition = "input.tabselected==3",
     selectInput("age_info_id",
@@ -32,7 +28,30 @@ dashboardPage(
   
   dashboardBody(
     tabsetPanel(
-      tabPanel("Les thématiques à la télévision", value = 1, plotlyOutput("plot_theme")),
+      tabPanel("Les thématiques des JT", value = 1,
+               fluidRow(
+                 column(6,
+                        selectInput("chaine_theme_id", "Choisissez la chaîne", choices = liste_chaines)
+                 ),
+                 column(6,
+                        selectInput("theme_id", "Choisissez le thème", choices = liste_themes)
+                 )
+               ),
+               
+               br(),
+               
+               # Graphique principal
+               plotlyOutput("plot_theme"),
+               br(), hr(),
+               
+               h3("Proximité entre chaînes selon les thèmes"),
+               plotlyOutput("plot_proximite_rf"),
+               br(), hr(),
+               
+               h3("Importance des thèmes pour différencier les chaînes"),
+               plotlyOutput("plot_importance_themes")
+      )
+      ,
       tabPanel("Le temps de parole des femmes", value = 2,
                uiOutput("plot_rep", click = "plot_click"),
                uiOutput("chaine_id"),
@@ -41,12 +60,7 @@ dashboardPage(
       tabPanel(" Rapport à l'information", value = 3,
                
                h3("Évolution du rapport des Français à l'information"),
-               
-               
-               # Graphique : médias utilisés
                plotlyOutput("plot_media_info"),
-               
-               # Graphique : confiance dans l'information
                plotlyOutput("plot_confiance_info")
       ),
       id = "tabselected"

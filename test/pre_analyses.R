@@ -1,18 +1,15 @@
-# Packages et chargement des données
-
-require(ggplot2)
-require(scales)
-require(stringr)
-require(tidyverse)
-require(dplyr)
+## Packages
+library(tidyverse)
+library(scales)
 library(readxl)
 library(dplyr)
 library(tidyr)
 library(stringr)
 library(ggplot2)
 library(plotly)
+library(randomForest)
 
-
+## Chargement des données
 data_rep <- read.csv2("../data/hourstatall.csv", sep=",")
 data_rep_tv <- read.csv2("../data/tv-years.csv", sep = ",")
 data_rep_radio <- read.csv2("../data/radio-years.csv", sep = ",")
@@ -23,7 +20,7 @@ choix_chaine <- unique(data_rep_tv$chaine)[-(1:3)]
 choix_media <- c("télévision","radio")
 choix_frequence <- unique(data_rep_radio$chaine)[-(1:3)]
 
-# Visualisation représentation des femmes à la télé
+## Visualisation représentation des femmes à la télé
 
 colnames(data_rep_tv) <- colnames(data_rep_tv) %>% 
   str_to_title()%>%
@@ -41,7 +38,7 @@ data_mediane <- data_rep_tv %>%
 
 data_mediane$representation <- as.numeric(data_mediane$representation)
 
-# données radio
+## Visualisation représentation des femmes à la radio
 
 colnames(data_rep_radio) <- colnames(data_rep_radio) %>% 
   str_to_title()%>%
@@ -65,7 +62,7 @@ choix_chaine <- unique(data_rep_tv$chaine)[-(1:3)] %>%
 choix_media <- c("télévision","radio")
 choix_frequence <- unique(data_rep_radio$chaine)[-(1:3)]
 
-## Evolution des thèmes représentés à la télévision
+## Evolution des thèmes des JT
 
 data_themes_tv <- data_themes_tv %>%
   mutate(
@@ -85,11 +82,7 @@ themes_par_annees <- data_themes_tv %>%
 liste_chaines <- sort(unique(data_themes_tv$chaine))
 liste_themes <- sort(unique(data_themes_tv$theme))
 
-#### ---------------------------------------------------------
 #### AJOUT AXE 3 — Rapport des Français à l'information 
-#### ---------------------------------------------------------
-
-
 
 base_raw <- read_excel("../data/base_arcom.xlsx")
 
@@ -131,10 +124,34 @@ donnees_axe3$confiance_info <- factor(
              "Pas du tout d'accord")
 )
 
-#### Choix pour les menus Shiny 
-
 choix_age_info <- levels(donnees_axe3$age)
 choix_genre_info <- levels(donnees_axe3$genre)
 choix_media_info <- levels(donnees_axe3$media_principal)
 choix_confiance_info <- levels(donnees_axe3$confiance_info)
 
+## Proximité des JT par Random Forest
+
+data_rf <- themes_par_annees %>%
+  group_by(chaine, theme) %>%
+  summarise(nb_sujets = sum(nb_sujets, na.rm = TRUE), .groups = "drop") %>%
+  mutate(theme = make.names(theme))  # rendre les noms valides en R
+
+data_rf_wide <- data_rf %>%
+  pivot_wider(names_from = theme, values_from = nb_sujets, values_fill = 0)
+
+df_mat <- as.matrix(data_rf_wide[,-1])
+rownames(df_mat) <- data_rf_wide$chaine
+
+dist_mat <- dist(df_mat)
+
+mds_coords <- cmdscale(dist_mat, k = 2)
+mds_df <- data.frame(
+  chaine = rownames(mds_coords),
+  Dim1 = mds_coords[,1],
+  Dim2 = mds_coords[,2]
+)
+
+importance_df <- data.frame(
+  theme = colnames(df_mat),
+  importance = colSums(df_mat)
+)

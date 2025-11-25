@@ -1,6 +1,5 @@
 library(shiny)
 
-# Define server logic required to draw a histogram
 server <- function(input, output, session) {
 
   output$plot_rep <- renderUI(
@@ -107,6 +106,34 @@ server <- function(input, output, session) {
         y = "Nombre de répondants"
       ) +
       theme_minimal()
+    
+    ggplotly(gg)
+  })
+  
+  output$plot_proximite_rf <- renderPlotly({
+    gg <- ggplot(mds_df, aes(x = Dim1, y = Dim2, label = chaine)) +
+      geom_point(size = 4, color = "#2c7fb8") +
+      geom_text(vjust = -1) +
+      theme_minimal() +
+      labs(
+        title = "Proximité entre chaînes selon les thèmes (Random Forest)",
+        x = "Dimension 1",
+        y = "Dimension 2"
+      )
+    
+    ggplotly(gg)
+  })
+  
+  output$plot_importance_themes <- renderPlotly({
+    gg <- ggplot(importance_df, aes(x = reorder(theme, importance), y = importance)) +
+      geom_col(fill = "#e6550d") +
+      coord_flip() +
+      theme_minimal() +
+      labs(
+        title = "Importance des thèmes pour différencier les chaînes",
+        x = "Thème",
+        y = "Importance (Random Forest)"
+      )
     
     ggplotly(gg)
   })
