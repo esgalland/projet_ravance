@@ -5,6 +5,13 @@ require(scales)
 require(stringr)
 require(tidyverse)
 require(dplyr)
+library(readxl)
+library(dplyr)
+library(tidyr)
+library(stringr)
+library(ggplot2)
+library(plotly)
+
 
 data_rep <- read.csv2("../data/hourstatall.csv", sep=",")
 data_rep_tv <- read.csv2("../data/tv-years.csv", sep = ",")
@@ -77,3 +84,57 @@ themes_par_annees <- data_themes_tv %>%
 
 liste_chaines <- sort(unique(data_themes_tv$chaine))
 liste_themes <- sort(unique(data_themes_tv$theme))
+
+#### ---------------------------------------------------------
+#### AJOUT AXE 3 — Rapport des Français à l'information 
+#### ---------------------------------------------------------
+
+
+
+base_raw <- read_excel("../data/base_arcom.xlsx")
+
+donnees_axe3 <- base_raw %>%
+  select(
+    genre = RS1_R,
+    age = RS2C_RECODE_AG_R,
+    media_principal = NEWS1BIS_R,
+    confiance_info = CONF1_R
+  )
+
+donnees_axe3$genre <- factor(
+  donnees_axe3$genre,
+  levels = c(1, 2),
+  labels = c("Homme", "Femme")
+)
+
+donnees_axe3$age <- factor(
+  donnees_axe3$age,
+  levels = c(1,2,3,4,5,6,7),
+  labels = c("15-17", "18-24", "25-34",
+             "35-44", "45-59", "60-69", "70+")
+)
+
+donnees_axe3$media_principal <- factor(
+  donnees_axe3$media_principal,
+  levels = c(1,2,3,4,5,6,7),
+  labels = c("Télévision", "Radio", "Presse écrite",
+             "Réseaux sociaux", "Moteurs de recherche",
+             "Plateformes vidéo", "Podcasts")
+)
+
+donnees_axe3$confiance_info <- factor(
+  donnees_axe3$confiance_info,
+  levels = c(1,2,3,4),
+  labels = c("Tout à fait d'accord",
+             "Plutôt d'accord",
+             "Plutôt pas d'accord",
+             "Pas du tout d'accord")
+)
+
+#### Choix pour les menus Shiny 
+
+choix_age_info <- levels(donnees_axe3$age)
+choix_genre_info <- levels(donnees_axe3$genre)
+choix_media_info <- levels(donnees_axe3$media_principal)
+choix_confiance_info <- levels(donnees_axe3$confiance_info)
+
