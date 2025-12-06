@@ -49,19 +49,32 @@ server <- function(input, output, session) {
 
     }
     })
-  filtered_themes <- reactive({
+
+  filtered_themes <- reactive({ # filtre interactif
     df <- themes_par_annees
     df <- df[df$chaine == input$chaine_theme_id,]
     df <- df[df$theme == input$theme_id,]
     df
   })
-  
+  # graphique principal thèmes
   output$plot_theme <- renderPlotly({
     df <- filtered_themes()
     plot_ly(df, x = ~year, y = ~nb_sujets, color = ~theme, type = 'scatter', mode = 'lines+markers') %>%
       layout(title = paste0("Représentation du thème \"", as.character(input$theme_id), "\" sur la chaine ", as.character(input$chaine_theme_id)),
              xaxis = list(title = "Année"),
              yaxis = list(title = "Nombre de sujets"))
+  })
+  output$comment_theme_intro <- renderUI({
+    HTML("
+      <p style='font-size:16px;'>
+      Sur le graphique ci-dessous, on remarque plusieurs choses marquantes :<br>
+      • explosion des sujets santé en 2020 sur toutes les chaînes, ce qui correspond clairement au covid,<br>
+      • une hausse progressive des sujets économiques au fil des années,<br>
+      • un déclin des sujets liés au sport,<br>
+      • et une augmentation des sujets “histoire / hommages” depuis 2000.<br>
+      Ces tendances sont visibles quand on change de chaîne ou de thème.
+      </p>
+    ")
   })
   # ---------------------------------------------------
   # AXE 3 : Rapport à l'information
@@ -178,7 +191,7 @@ server <- function(input, output, session) {
   
   output$plot_proximite_rf <- renderPlotly({
     gg <- ggplot(mds_df, aes(x = Dim1, y = Dim2, label = chaine)) +
-      geom_point(size = 4, color = "#2c7fb8") +
+      geom_point(size = 4, color = "#66b2ff") +
       geom_text(vjust = -1) +
       theme_minimal() +
       labs(
@@ -188,6 +201,15 @@ server <- function(input, output, session) {
       )
     
     ggplotly(gg)
+  })
+  output$comment_proximite <- renderUI({
+    HTML("
+      <p style='font-size:16px;'>
+      Ce graphique montre quelles chaînes se ressemblent le plus dans leur manière de traiter les thèmes des JT.<br>
+      Le calcul vient d’une méthode MDS appliquée à une matrice de distances entre chaînes.<br>
+      Deux chaînes proches sur le graphique ont des répartitions de thèmes très similaires.
+      </p>
+    ")
   })
   
   output$plot_importance_themes <- renderPlotly({
@@ -202,6 +224,13 @@ server <- function(input, output, session) {
       )
     
     ggplotly(gg)
+  })
+  output$comment_importance <- renderUI({
+    HTML("
+      <p style='font-size:16px;'>
+      L’importance ici correspond simplement au volume total de sujets par thème sur l’ensemble des chaînes.<br>
+      </p>
+    ")
   })
 }
 

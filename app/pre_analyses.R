@@ -18,11 +18,12 @@ data_rep_radio <- read.csv2("../data/radio-years.csv", sep = ",")
 data_themes_tv <- read.csv2("../data/ina-barometre-jt-tv-donnees-quotidiennes-2000-2020-nbre-sujets-durees-202410.csv", 
                             sep=";", header=FALSE, col.names = c("date", "chaine", "vide", "theme", "nb_sujets", "duree"))
 
+## Visualisation représentation des femmes à la télé
+
+# choix des menus
 choix_chaine <- unique(data_rep_tv$chaine)[-(1:3)]
 choix_media <- c("télévision","radio")
 choix_frequence <- unique(data_rep_radio$chaine)[-(1:3)]
-
-## Visualisation représentation des femmes à la télé
 
 colnames(data_rep_tv) <- colnames(data_rep_tv) %>% 
   str_to_title()%>%
@@ -66,6 +67,7 @@ choix_frequence <- unique(data_rep_radio$chaine)[-(1:3)]
 
 ## Evolution des thèmes des JT
 
+# nettoyage des données
 data_themes_tv <- data_themes_tv %>%
   mutate(
     date = dmy(date),
@@ -84,8 +86,35 @@ themes_par_annees <- data_themes_tv %>%
 liste_chaines <- sort(unique(data_themes_tv$chaine))
 liste_themes <- sort(unique(data_themes_tv$theme))
 
-#### AJOUT AXE 3 — Rapport des Français à l'information 
+## Proximité des JT par Random Forest
 
+data_rf <- themes_par_annees %>%
+  group_by(chaine, theme) %>%
+  summarise(nb_sujets = sum(nb_sujets, na.rm = TRUE), .groups = "drop") %>%
+  mutate(theme = make.names(theme))  # rendre les noms valides en R
+
+data_rf_wide <- data_rf %>%
+  pivot_wider(names_from = theme, values_from = nb_sujets, values_fill = 0)
+
+df_mat <- as.matrix(data_rf_wide[,-1])
+rownames(df_mat) <- data_rf_wide$chaine
+
+# distance pour faire une MDS
+dist_mat <- dist(df_mat)
+# MDS : les chaines dans un plan 2D selon la proximité thématique
+mds_coords <- cmdscale(dist_mat, k = 2)
+mds_df <- data.frame(
+  chaine = rownames(mds_coords),
+  Dim1 = mds_coords[,1],
+  Dim2 = mds_coords[,2]
+)
+# importance = fréquence totale des thèmes
+importance_df <- data.frame(
+  theme = colnames(df_mat),
+  importance = colSums(df_mat)
+)
+
+#### AJOUT AXE 3 — Rapport des Français à l'information 
 base_raw <- read_excel("../data/base_arcom.xlsx")
 
 donnees_axe3 <- base_raw %>%
@@ -133,7 +162,6 @@ choix_confiance_info <- levels(donnees_axe3$confiance_info)
 
 
 ## Heatmap Média × Confiance 
-
 table_media_confiance <- donnees_axe3 %>%
   filter(!is.na(media_principal), !is.na(confiance_info)) %>%
   group_by(media_principal, confiance_info) %>%
@@ -149,7 +177,6 @@ table_media_confiance <- donnees_axe3 %>%
   )
 
 # Axe 3-  Confiance moyenne dans l'information selon l'âge
-
 # Recodage du facteur confiance_info
 donnees_axe3$confiance_info <- factor(
   donnees_axe3$confiance_info,
@@ -163,29 +190,4 @@ donnees_axe3$confiance_info <- factor(
 donnees_axe3$confiance_score <- as.numeric(donnees_axe3$confiance_info)
 
 
-## Proximité des JT par Random Forest
 
-data_rf <- themes_par_annees %>%
-  group_by(chaine, theme) %>%
-  summarise(nb_sujets = sum(nb_sujets, na.rm = TRUE), .groups = "drop") %>%
-  mutate(theme = make.names(theme))  # rendre les noms valides en R
-
-data_rf_wide <- data_rf %>%
-  pivot_wider(names_from = theme, values_from = nb_sujets, values_fill = 0)
-
-df_mat <- as.matrix(data_rf_wide[,-1])
-rownames(df_mat) <- data_rf_wide$chaine
-
-dist_mat <- dist(df_mat)
-
-mds_coords <- cmdscale(dist_mat, k = 2)
-mds_df <- data.frame(
-  chaine = rownames(mds_coords),
-  Dim1 = mds_coords[,1],
-  Dim2 = mds_coords[,2]
-)
-
-importance_df <- data.frame(
-  theme = colnames(df_mat),
-  importance = colSums(df_mat)
-)
