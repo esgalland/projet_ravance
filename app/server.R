@@ -74,7 +74,9 @@ server <- function(input, output, session) {
     donnees_axe3 %>%
       filter(
         age == input$age_info_id,
-        genre == input$genre_info_id
+        genre == input$genre_info_id,
+        !is.na(media_principal),
+        !is.na(confiance_info)
       )
   })
   
@@ -84,6 +86,7 @@ server <- function(input, output, session) {
     
     gg <- ggplot(df, aes(x = media_principal)) +
       geom_bar(fill = "#3182bd") +
+      scale_x_discrete(drop =FALSE) +
       labs(
         title = "Quels médias sont utilisés pour s'informer ?",
         x = "Média principal",
@@ -93,6 +96,9 @@ server <- function(input, output, session) {
     
     ggplotly(gg)
   })
+  output$insight_media <- renderText({   
+    "La radio est le média principal le plus utilisé, tandis que les réseaux sociaux sont quasi absents."
+  })
   
   # Graphique : Niveau de confiance
   output$plot_confiance_info <- renderPlotly({
@@ -100,6 +106,7 @@ server <- function(input, output, session) {
     
     gg <- ggplot(df, aes(x = confiance_info)) +
       geom_bar(fill = "#e6550d") +
+      scale_x_discrete(drop =FALSE) +
       labs(
         title = "Confiance dans l'information",
         x = "Niveau de confiance",
@@ -109,6 +116,65 @@ server <- function(input, output, session) {
     
     ggplotly(gg)
   })
+  
+  output$insight_confiance <- renderText({   
+    "La confiance dans l'information est majoritairement modérée ('Plutôt d'accord')."
+  })
+  
+  # ---------------------------------------------------
+  # AXE 3 : Heatmap Média × Confiance
+  # ---------------------------------------------------
+  output$heatmap_media_confiance <- renderPlotly({
+    
+    df <- filtered_axe3() %>% 
+      filter(!is.na(media_principal),
+             !is.na(confiance_info))
+    
+    tab <- table(df$media_principal, df$confiance_info)
+    df_long <- as.data.frame(tab)
+    colnames(df_long) <- c("media_principal", "confiance_info", "n")
+    
+    p <- ggplot(df_long, aes(x = media_principal, y = confiance_info, fill = n)) +
+      geom_tile() +
+      scale_fill_gradient(low = "#deebf7", high = "#3182bd") +
+      labs(
+        title = "Relation entre média utilisé et confiance dans l'information",
+        x = "Média principal",
+        y = "Niveau de confiance",
+        fill = "Nombre"
+      ) +
+      theme_minimal() +
+      theme(axis.text.x = element_text(angle = 45, hjust = 1))
+    
+    ggplotly(p)
+  })
+  output$insight_heatmap <- renderText({   
+    "La radio est associée à une confiance plus élevée, contrairement aux plateformes vidéo et podcasts."
+  })
+
+# Axe 3-  Confiance moyenne dans l'information selon l'âge
+  
+  output$plot_confiance_age <- renderPlotly({
+    
+    df <- donnees_axe3 %>%
+      filter(!is.na(confiance_score), !is.na(age)) %>%
+      group_by(age) %>%
+      summarise(confiance_moy = mean(confiance_score), .groups = "drop")
+    
+    gg <- ggplot(df, aes(x = age, y = confiance_moy)) +
+      geom_col(fill = "#3182bd") +
+      theme_minimal() +
+      labs(
+        title = "Confiance moyenne selon l'âge",
+        x = "Tranche d'âge",
+        y = "Score moyen (1 = forte confiance ; 4 = faible confiance)"
+      )
+    
+    ggplotly(gg)
+  })
+  
+  
+## Random forest 
   
   output$plot_proximite_rf <- renderPlotly({
     gg <- ggplot(mds_df, aes(x = Dim1, y = Dim2, label = chaine)) +

@@ -13,7 +13,7 @@ dashboardPage(
                                  label = "Choisissez le média",
                                  choices = choix_media)
     ),
-  conditionalPanel(
+   conditionalPanel(
     condition = "input.tabselected==3",
     selectInput("age_info_id",
                 "Choisissez une tranche d'âge :",
@@ -23,10 +23,25 @@ dashboardPage(
                 "Choisissez un genre :",
                 choices = choix_genre_info,
                 selected = choix_genre_info[1])
-  )
+    )
   ),
   
   dashboardBody(
+    # Code CSS pour faire que le side bar bouge quand on scrolle dans les deux sens sur la page
+    tags$head(
+      tags$style(HTML("
+        .main-sidebar {
+          position: fixed;
+          top: 0;
+          height: 100%;
+          overflow-y: auto;
+        }
+
+        .content-wrapper, .right-side {
+          margin-left: 230px !important;
+        }
+      "))
+    ),
     tabsetPanel(
       tabPanel("Les thématiques des JT", value = 1,
                fluidRow(
@@ -49,7 +64,9 @@ dashboardPage(
                br(), hr(),
                
                h3("Importance des thèmes pour différencier les chaînes"),
-               plotlyOutput("plot_importance_themes")
+               plotlyOutput("plot_importance_themes"),
+              
+               
       )
       ,
       tabPanel("Le temps de parole des femmes", value = 2,
@@ -61,7 +78,21 @@ dashboardPage(
                
                h3("Évolution du rapport des Français à l'information"),
                plotlyOutput("plot_media_info"),
-               plotlyOutput("plot_confiance_info")
+               htmlOutput("insight_media"),
+               br(), hr(), br(),
+               
+               plotlyOutput("plot_confiance_info"),
+               htmlOutput("insight_confiance"),
+               br(), hr(),
+               
+               h3("Lien entre média principal et confiance dans l'information"),
+               plotlyOutput("heatmap_media_confiance"),
+               htmlOutput("insight_heatmap"),
+               br(), hr(),
+               h3("Confiance moyenne selon l'âge"),
+               plotlyOutput("plot_confiance_age"),
+               br(), hr()
+               
       ),
       id = "tabselected"
     )
