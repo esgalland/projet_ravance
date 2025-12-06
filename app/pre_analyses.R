@@ -8,6 +8,8 @@ library(stringr)
 library(ggplot2)
 library(plotly)
 library(randomForest)
+library(rpart)
+library(rpart.plot)
 
 ## Chargement des données
 data_rep <- read.csv2("../data/hourstatall.csv", sep=",")
@@ -128,6 +130,38 @@ choix_age_info <- levels(donnees_axe3$age)
 choix_genre_info <- levels(donnees_axe3$genre)
 choix_media_info <- levels(donnees_axe3$media_principal)
 choix_confiance_info <- levels(donnees_axe3$confiance_info)
+
+
+## Heatmap Média × Confiance 
+
+table_media_confiance <- donnees_axe3 %>%
+  filter(!is.na(media_principal), !is.na(confiance_info)) %>%
+  group_by(media_principal, confiance_info) %>%
+  summarise(n = n(), .groups = "drop") %>%
+  mutate(
+    confiance_info = factor(
+      confiance_info,
+      levels = c("Tout à fait d'accord", 
+                 "Plutôt d'accord",
+                 "Plutôt pas d'accord",
+                 "Pas du tout d'accord")
+    )
+  )
+
+# Axe 3-  Confiance moyenne dans l'information selon l'âge
+
+# Recodage du facteur confiance_info
+donnees_axe3$confiance_info <- factor(
+  donnees_axe3$confiance_info,
+  levels = c("Tout à fait d'accord",
+             "Plutôt d'accord",
+             "Plutôt pas d'accord",
+             "Pas du tout d'accord")
+)
+
+# Création d'un score numérique 1 → 4
+donnees_axe3$confiance_score <- as.numeric(donnees_axe3$confiance_info)
+
 
 ## Proximité des JT par Random Forest
 
