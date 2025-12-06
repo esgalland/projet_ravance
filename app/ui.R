@@ -44,6 +44,7 @@ dashboardPage(
     ),
     tabsetPanel(
       tabPanel("Les thématiques des JT", value = 1,
+               uiOutput("comment_theme_intro"),
                fluidRow(
                  column(6,
                         selectInput("chaine_theme_id", "Choisissez la chaîne", choices = liste_chaines)
@@ -55,15 +56,17 @@ dashboardPage(
                
                br(),
                
-               # Graphique principal
+               # graphique principal
                plotlyOutput("plot_theme"),
                br(), hr(),
                
                h3("Proximité entre chaînes selon les thèmes"),
                plotlyOutput("plot_proximite_rf"),
+               uiOutput("comment_proximite"),
                br(), hr(),
                
                h3("Importance des thèmes pour différencier les chaînes"),
+               uiOutput("comment_importance"),
                plotlyOutput("plot_importance_themes"),
               
                
