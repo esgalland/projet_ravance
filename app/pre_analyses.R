@@ -21,9 +21,7 @@ data_themes_tv <- read.csv2("../data/ina-barometre-jt-tv-donnees-quotidiennes-20
 ## Visualisation représentation des femmes à la télé
 
 # choix des menus
-choix_chaine <- unique(data_rep_tv$chaine)[-(1:3)]
 choix_media <- c("télévision","radio")
-choix_frequence <- unique(data_rep_radio$chaine)[-(1:3)]
 
 colnames(data_rep_tv) <- colnames(data_rep_tv) %>% 
   str_to_title()%>%
@@ -36,10 +34,13 @@ data_rep_tv$representation <- data_rep_tv$representation %>%
 
 data_rep_tv$representation <- as.numeric(data_rep_tv$representation)
 
+data_rep_tv <- na.omit(data_rep_tv)
+
 data_mediane <- data_rep_tv %>%
   filter(chaine == "Mediane" | chaine == "Mediane_prive" | chaine == "Mediane_public")
 
 data_mediane$representation <- as.numeric(data_mediane$representation)
+choix_chaine <- unique(data_rep_tv$chaine)[-(1:3)]
 
 ## Visualisation représentation des femmes à la radio
 
@@ -49,18 +50,16 @@ colnames(data_rep_radio) <- colnames(data_rep_radio) %>%
   str_replace_all(pattern = "\\.", replacement = "_") 
 
 data_rep_radio <- pivot_longer(data_rep_radio, cols = - Year, values_to = "representation", names_to = "chaine")
+choix_frequence <- unique(data_rep_radio$chaine)[-(1:3)]
 data_rep_radio$representation <- data_rep_radio$representation %>% 
   str_replace_all(pattern = " ", replacement = "NA") 
 
 data_rep_radio$representation <- as.numeric(data_rep_radio$representation)
+data_rep_radio <- na.omit(data_rep_radio)
 
 data_mediane_radio <- data_rep_radio %>%
   filter(chaine == "Mediane" | chaine == "Mediane_prive" | chaine == "Mediane_public")
 
-choix_chaine <- unique(data_rep_tv$chaine)[-(1:3)] %>%
-  str_to_title()%>%
-  str_replace_all(pattern = "[éëè]", replacement = "e") %>%
-  str_replace_all(pattern = "\\.", replacement = "_") 
 
 choix_media <- c("télévision","radio")
 choix_frequence <- unique(data_rep_radio$chaine)[-(1:3)]

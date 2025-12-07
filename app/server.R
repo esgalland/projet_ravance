@@ -15,7 +15,7 @@ server <- function(input, output, session) {
                               geom_line()+
                               geom_point()+
                               theme_minimal()+
-                              ggtitle("Médianes du taux de représentation des femmes à la radio en fonction du temps")))
+                              ggtitle("Taux de représentation moyen des femmes à la radio en fonction du temps")))
     }
   )
   
@@ -44,13 +44,13 @@ server <- function(input, output, session) {
                               geom_line()+
                               geom_point()+
                               theme_minimal()+
-                              ggtitle(paste0("Médianes du taux de représentation des femmes sur la chaine ",as.character(input$chaine_radio_id), " en fonction de l'année"))))
+                              ggtitle(paste0("Taux de représentation moyen des femmes sur la chaine ",as.character(input$chaine_radio_id), " en fonction de l'année"))))
       
 
     }
     })
 
-  filtered_themes <- reactive({ # filtre interactif
+  filtered_themes <- reactive({ # filtre interactifchoiw
     df <- themes_par_annees
     df <- df[df$chaine == input$chaine_theme_id,]
     df <- df[df$theme == input$theme_id,]
