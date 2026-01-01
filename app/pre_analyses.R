@@ -1,15 +1,16 @@
 ## Packages
-library(tidyverse)
-library(scales)
-library(readxl)
-library(dplyr)
-library(tidyr)
-library(stringr)
 library(ggplot2)
 library(plotly)
 library(randomForest)
+library(readxl)
 library(rpart)
 library(rpart.plot)
+library(scales)
+library(stringr)
+library(tidyr)
+library(tidyverse)
+
+library(dplyr) #en dernier pour éviter les conflits
 
 ## Chargement des données
 data_rep <- read.csv2("../data/hourstatall.csv", sep=",")
@@ -26,7 +27,7 @@ choix_media <- c("télévision","radio")
 colnames(data_rep_tv) <- colnames(data_rep_tv) %>% 
   str_to_title()%>%
   str_replace_all(pattern = "[éëè]", replacement = "e") %>%
-  str_replace_all(pattern = "\\.", replacement = "_") 
+  str_replace_all(pattern = "\\.", replacement = " ") 
 
 data_rep_tv <- pivot_longer(data_rep_tv, cols = - Year, values_to = "representation", names_to = "chaine")
 data_rep_tv$representation <- data_rep_tv$representation %>% 
@@ -47,7 +48,7 @@ choix_chaine <- unique(data_rep_tv$chaine)[-(1:3)]
 colnames(data_rep_radio) <- colnames(data_rep_radio) %>% 
   str_to_title()%>%
   str_replace_all(pattern = "[éëè]", replacement = "e") %>%
-  str_replace_all(pattern = "\\.", replacement = "_") 
+  str_replace_all(pattern = "\\.", replacement = " ") 
 
 data_rep_radio <- pivot_longer(data_rep_radio, cols = - Year, values_to = "representation", names_to = "chaine")
 choix_frequence <- unique(data_rep_radio$chaine)[-(1:3)]

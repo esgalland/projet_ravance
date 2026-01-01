@@ -6,7 +6,7 @@ library(shinydashboard)
 source("pre_analyses.R")
 
 dashboardPage(
-  dashboardHeader(title = "L'audiovisuel en France"),
+  dashboardHeader(title = "L'audiovisuel en France", titleWidth = 290),
   dashboardSidebar(
     conditionalPanel(condition="input.tabselected==2",
                      selectInput(inputId = "media_id",

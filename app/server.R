@@ -8,6 +8,7 @@ server <- function(input, output, session) {
                               geom_line()+
                               geom_point()+
                               theme_minimal()+
+                              labs(x = "Année")+
                               ggtitle("Médianes du taux de représentation des femmes à la télé en fonction du temps"))
       )
     }else{
@@ -15,6 +16,7 @@ server <- function(input, output, session) {
                               geom_line()+
                               geom_point()+
                               theme_minimal()+
+                              labs(x = "Année")+
                               ggtitle("Taux de représentation moyen des femmes à la radio en fonction du temps")))
     }
   )
@@ -37,6 +39,7 @@ server <- function(input, output, session) {
                               geom_line()+
                               geom_point()+
                               theme_minimal()+
+                              labs(x = "Année")+
                               ggtitle(paste0("Médianes du taux de représentation des femmes sur la chaine ",as.character(input$chaine_tv_id), " en fonction de l'année"))
       ))  
     }else{
@@ -44,6 +47,7 @@ server <- function(input, output, session) {
                               geom_line()+
                               geom_point()+
                               theme_minimal()+
+                              labs(x = "Année")+
                               ggtitle(paste0("Taux de représentation moyen des femmes sur la chaine ",as.character(input$chaine_radio_id), " en fonction de l'année"))))
       
 
