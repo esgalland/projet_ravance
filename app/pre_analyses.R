@@ -24,11 +24,13 @@ data_themes_tv <- read.csv2("../data/ina-barometre-jt-tv-donnees-quotidiennes-20
 # choix des menus
 choix_media <- c("télévision","radio")
 
+# harmonisation des noms de colonnes
 colnames(data_rep_tv) <- colnames(data_rep_tv) %>% 
   str_to_title()%>%
   str_replace_all(pattern = "[éëè]", replacement = "e") %>%
   str_replace_all(pattern = "\\.", replacement = " ") 
 
+# passage au format long: chaque ligne correspond à une année et une chaine
 data_rep_tv <- pivot_longer(data_rep_tv, cols = - Year, values_to = "representation", names_to = "chaine")
 data_rep_tv$representation <- data_rep_tv$representation %>% 
   str_replace_all(pattern = " ", replacement = "NA") 
@@ -45,6 +47,7 @@ choix_chaine <- unique(data_rep_tv$chaine)[-(1:3)]
 
 ## Visualisation représentation des femmes à la radio
 
+# transformation identique à celle de tv
 colnames(data_rep_radio) <- colnames(data_rep_radio) %>% 
   str_to_title()%>%
   str_replace_all(pattern = "[éëè]", replacement = "e") %>%
@@ -67,7 +70,7 @@ choix_frequence <- unique(data_rep_radio$chaine)[-(1:3)]
 
 ## Evolution des thèmes des JT
 
-# nettoyage des données
+# nettoyage des données, conversion des dates, suppression des colonnes inutiles
 data_themes_tv <- data_themes_tv %>%
   mutate(
     date = dmy(date),
@@ -79,6 +82,7 @@ data_themes_tv <- data_themes_tv %>%
   ) %>%
   select(-vide)
 
+# agrégation annuelle : calcul du nombre total de sujets par thème, par chaine et par année
 themes_par_annees <- data_themes_tv %>%
   group_by(year, chaine, theme) %>%
   summarise(nb_sujets = sum(nb_sujets, na.rm = TRUE), .groups="drop")
@@ -88,6 +92,7 @@ liste_themes <- sort(unique(data_themes_tv$theme))
 
 ## Proximité des JT par Random Forest
 
+# préparation des données pour le calcul de distance
 data_rf <- themes_par_annees %>%
   group_by(chaine, theme) %>%
   summarise(nb_sujets = sum(nb_sujets, na.rm = TRUE), .groups = "drop") %>%
@@ -99,7 +104,7 @@ data_rf_wide <- data_rf %>%
 df_mat <- as.matrix(data_rf_wide[,-1])
 rownames(df_mat) <- data_rf_wide$chaine
 
-# distance pour faire une MDS
+# calcul d'une matrice de distance pour faire une MDS
 dist_mat <- dist(df_mat)
 # MDS : les chaines dans un plan 2D selon la proximité thématique
 mds_coords <- cmdscale(dist_mat, k = 2)
@@ -117,6 +122,7 @@ importance_df <- data.frame(
 #### AJOUT AXE 3 — Rapport des Français à l'information 
 base_raw <- read_excel("../data/base_arcom.xlsx")
 
+# selection des variables
 donnees_axe3 <- base_raw %>%
   select(
     genre = RS1_R,
