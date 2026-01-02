@@ -60,12 +60,10 @@ dashboardPage(
                plotlyOutput("plot_theme"),
                br(), hr(),
                
-               h3("Proximité entre chaînes selon les thèmes"),
                plotlyOutput("plot_proximite_rf"),
                uiOutput("comment_proximite"),
                br(), hr(),
                
-               h3("Importance des thèmes pour différencier les chaînes"),
                uiOutput("comment_importance"),
                plotlyOutput("plot_importance_themes"),
               
@@ -73,7 +71,7 @@ dashboardPage(
       )
       ,
       tabPanel("Le temps de parole des femmes", value = 2,
-               uiOutput("plot_rep", click = "plot_click"),
+               plotlyOutput("plot_rep"),
                uiOutput("chaine_id"),
                uiOutput("plot_rep_chaine")
               ),
