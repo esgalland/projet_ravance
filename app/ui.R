@@ -60,12 +60,10 @@ dashboardPage(
                plotlyOutput("plot_theme"),
                br(), hr(),
                
-               h3("Proximité entre chaînes selon les thèmes"),
                plotlyOutput("plot_proximite_rf"),
                uiOutput("comment_proximite"),
                br(), hr(),
                
-               h3("Importance des thèmes pour différencier les chaînes"),
                uiOutput("comment_importance"),
                plotlyOutput("plot_importance_themes"),
               

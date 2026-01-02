@@ -116,8 +116,12 @@ server <- function(input, output, session) {
     
     ggplotly(gg)
   })
-  output$insight_media <- renderText({   
-    "La radio est le média principal le plus utilisé, tandis que les réseaux sociaux sont quasi absents."
+  output$insight_media <- renderUI({
+    HTML("
+    <p style='font-size:16px; line-height:1.5;'>
+    La radio est le média principal le plus utilisé, tandis que les réseaux sociaux sont quasi absents.
+    </p>
+  ")
   })
   
   # Graphique : Niveau de confiance
@@ -137,8 +141,12 @@ server <- function(input, output, session) {
     ggplotly(gg)
   })
   
-  output$insight_confiance <- renderText({   
-    "La confiance dans l'information est majoritairement modérée ('Plutôt d'accord')."
+  output$insight_confiance <- renderUI({
+    HTML("
+    <p style='font-size:16px; line-height:1.5;'>
+    La confiance dans l'information est majoritairement modérée (« Plutôt d'accord »).
+    </p>
+  ")
   })
   
   # ---------------------------------------------------
@@ -168,8 +176,12 @@ server <- function(input, output, session) {
     
     ggplotly(p)
   })
-  output$insight_heatmap <- renderText({   
-    "La radio est associée à une confiance plus élevée, contrairement aux plateformes vidéo et podcasts."
+  output$insight_heatmap <- renderUI({
+    HTML("
+    <p style='font-size:16px; line-height:1.5;'>
+    La radio est associée à une confiance plus élevée, contrairement aux plateformes vidéo et podcasts.
+    </p>
+  ")
   })
 
 # Axe 3-  Confiance moyenne dans l'information selon l'âge
@@ -187,7 +199,7 @@ server <- function(input, output, session) {
       labs(
         title = "Confiance moyenne selon l'âge",
         x = "Tranche d'âge",
-        y = "Score moyen (1 = forte confiance ; 4 = faible confiance)"
+        y = "Confiance (1 = forte ; 4 = faible)"
       )
     
     ggplotly(gg)
