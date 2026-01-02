@@ -68,6 +68,20 @@ data_mediane_radio <- data_rep_radio %>%
 choix_media <- c("télévision","radio")
 choix_frequence <- unique(data_rep_radio$chaine)[-(1:3)]
 
+## Table unifiée pour la représentation des femmes
+data_mediane_all <- bind_rows(
+  data_mediane %>%
+    mutate(
+      media = "télévision",
+      indicateur = chaine
+    ),
+  data_mediane_radio %>%
+    mutate(
+      media = "radio",
+      indicateur = chaine
+    )
+)
+
 ## Evolution des thèmes des JT
 
 # nettoyage des données, conversion des dates, suppression des colonnes inutiles

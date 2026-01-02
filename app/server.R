@@ -2,24 +2,27 @@ library(shiny)
 
 server <- function(input, output, session) {
 
-  output$plot_rep <- renderUI(
-    if(input$media_id == "télévision"){
-      renderPlotly(ggplotly(ggplot(data_mediane, aes(x = Year, ymin = 0, y = representation, group = chaine, colour = chaine))+
-                              geom_line()+
-                              geom_point()+
-                              theme_minimal()+
-                              labs(x = "Année")+
-                              ggtitle("Médianes du taux de représentation des femmes à la télé en fonction du temps"))
-      )
-    }else{
-      renderPlotly(ggplotly(ggplot(data_mediane_radio, aes(x = Year, ymin = 0, y = representation, group = chaine, colour = chaine))+
-                              geom_line()+
-                              geom_point()+
-                              theme_minimal()+
-                              labs(x = "Année")+
-                              ggtitle("Taux de représentation moyen des femmes à la radio en fonction du temps")))
-    }
-  )
+  output$plot_rep <- renderPlotly({
+    
+    req(input$media_id)
+    
+    df <- data_mediane_all %>%
+      filter(media == input$media_id)
+    
+    ggplotly(
+      ggplot(df, aes(x = Year, y = representation, color = indicateur)) +
+        geom_line() +
+        geom_point() +
+        theme_minimal() +
+        labs(
+          title = "Évolution du taux de représentation des femmes",
+          x = "Année",
+          y = "Taux de représentation (%)",
+          color = "Indicateur"
+        )
+    )
+  })
+  
   
   output$chaine_id <- renderUI(
     if(input$media_id == "télévision"){

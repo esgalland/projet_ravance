@@ -73,7 +73,7 @@ dashboardPage(
       )
       ,
       tabPanel("Le temps de parole des femmes", value = 2,
-               uiOutput("plot_rep", click = "plot_click"),
+               plotlyOutput("plot_rep"),
                uiOutput("chaine_id"),
                uiOutput("plot_rep_chaine")
               ),
