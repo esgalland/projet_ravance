@@ -4,54 +4,60 @@ server <- function(input, output, session) {
 
   output$plot_rep <- renderPlotly({
     
-    req(input$media_id)
-    
     df <- data_mediane_all %>%
       filter(media == input$media_id)
     
     ggplotly(
-      ggplot(df, aes(x = Year, y = representation, color = indicateur)) +
+      ggplot(df, aes(x = Year, y = representation, ymin = 0, color = indicateur)) +
         geom_line() +
         geom_point() +
         theme_minimal() +
         labs(
           title = "Évolution du taux de représentation des femmes",
           x = "Année",
-          y = "Taux de représentation (%)",
-          color = "Indicateur"
+          y = "Taux de représentation (%)"
         )
     )
   })
+  
   
   
   output$chaine_id <- renderUI(
     if(input$media_id == "télévision"){
       selectInput(inputId = "chaine_tv_id",
                   label = "choisissez la chaine de télé",
-                  choices = choix_chaine)
+                  choices = choix_chaine,
+                  multiple = TRUE,
+                  selected = choix_chaine[1])
     }else{
       selectInput(inputId = "chaine_radio_id",
                   label = "choisissez la fréquence",
-                  choices = choix_frequence)
+                  choices = choix_frequence,
+                  multiple = TRUE,
+                  selected = choix_frequence[1])
     }
   )
   
   output$plot_rep_chaine <- renderUI({
     if(input$media_id == "télévision"){
-      renderPlotly(ggplotly(ggplot(data <- data_rep_tv %>% filter(chaine == as.character(input$chaine_tv_id)), aes(x = Year, ymin = 0, y = representation))+
+      renderPlotly(ggplotly(ggplot(data <- data_rep_tv %>% 
+                                  filter(chaine %in% input$chaine_tv_id), 
+                                  aes(x = Year, ymin = 0, y = representation, colour = chaine))+
                               geom_line()+
                               geom_point()+
                               theme_minimal()+
                               labs(x = "Année")+
-                              ggtitle(paste0("Médianes du taux de représentation des femmes sur la chaine ",as.character(input$chaine_tv_id), " en fonction de l'année"))
+                              ggtitle(paste0("Médianes du taux de représentation des femmes sur les chaines ", paste(input$chaine_tv_id, collapse = ", "), " en fonction de l'année"))
       ))  
     }else{
-      renderPlotly(ggplotly(ggplot(data <- data_rep_radio %>% filter(chaine == as.character(input$chaine_radio_id)), aes(x = Year, ymin = 0, y = representation))+
+      renderPlotly(ggplotly(ggplot(data <- data_rep_radio %>% 
+                                  filter(chaine %in% input$chaine_radio_id), 
+                                  aes(x = Year, ymin = 0, y = representation, colour = chaine))+
                               geom_line()+
                               geom_point()+
                               theme_minimal()+
                               labs(x = "Année")+
-                              ggtitle(paste0("Taux de représentation moyen des femmes sur la chaine ",as.character(input$chaine_radio_id), " en fonction de l'année"))))
+                              ggtitle(paste0("Taux de représentation moyen des femmes sur les chaines ",paste(input$chaine_tv_id, collapse = ", "), " en fonction de l'année"))))
       
 
     }
