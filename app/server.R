@@ -63,20 +63,38 @@ server <- function(input, output, session) {
     }
     })
 
-  filtered_themes <- reactive({ # filtre interactifchoiw
-    df <- themes_par_annees
-    df <- df[df$chaine == input$chaine_theme_id,]
-    df <- df[df$theme == input$theme_id,]
-    df
+  filtered_themes <- reactive({
+    req(input$chaine_theme_id, input$theme_id)
+    
+    themes_par_annees %>%
+      filter(
+        chaine %in% input$chaine_theme_id,
+        theme == input$theme_id
+      )
   })
+  
   # graphique principal thèmes
   output$plot_theme <- renderPlotly({
     df <- filtered_themes()
-    plot_ly(df, x = ~year, y = ~nb_sujets, color = ~theme, type = 'scatter', mode = 'lines+markers') %>%
-      layout(title = paste0("Représentation du thème \"", as.character(input$theme_id), "\" sur la chaine ", as.character(input$chaine_theme_id)),
-             xaxis = list(title = "Année"),
-             yaxis = list(title = "Nombre de sujets"))
+    df <- df %>% arrange(chaine, year)
+    plot_ly(
+      df,
+      x = ~year,
+      y = ~nb_sujets,
+      color = ~chaine,          # <— une couleur par chaîne
+      type = "scatter",
+      mode = "lines+markers"
+    ) %>%
+      layout(
+        title = paste0(
+          "Thème \"", as.character(input$theme_id),
+          "\" — comparaison : ", paste(input$chaine_theme_id, collapse = ", ")
+        ),
+        xaxis = list(title = "Année"),
+        yaxis = list(title = "Nombre de sujets")
+      )
   })
+  
   output$comment_theme_intro <- renderUI({
     HTML("
       <p style='font-size:16px;'>
