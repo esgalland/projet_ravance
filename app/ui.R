@@ -47,7 +47,13 @@ dashboardPage(
                uiOutput("comment_theme_intro"),
                fluidRow(
                  column(6,
-                        selectInput("chaine_theme_id", "Choisissez la chaîne", choices = liste_chaines)
+                        selectInput(
+                          "chaine_theme_id",
+                          "Choisissez la/les chaîne(s)",
+                          choices = liste_chaines,
+                          selected = liste_chaines[1],
+                          multiple = TRUE
+                        )
                  ),
                  column(6,
                         selectInput("theme_id", "Choisissez le thème", choices = liste_themes)
