@@ -101,6 +101,8 @@ themes_par_annees <- data_themes_tv %>%
   group_by(year, chaine, theme) %>%
   summarise(nb_sujets = sum(nb_sujets, na.rm = TRUE), .groups="drop")
 
+liste_annees <- sort(unique(themes_par_annees$year))
+
 liste_chaines <- sort(unique(data_themes_tv$chaine))
 liste_themes <- sort(unique(data_themes_tv$theme))
 
