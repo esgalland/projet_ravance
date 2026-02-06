@@ -204,7 +204,7 @@ server <- function(input, output, session) {
       geom_col(fill = "#3182bd") +
       theme_minimal() +
       labs(
-        title = "Confiance moyenne selon l'âge",
+        title = "Confiance moyenne selon l'âge (Hommes et Femmes confondus)",
         x = "Tranche d'âge",
         y = "Confiance (1 = forte ; 4 = faible)"
       )
