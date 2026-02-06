@@ -81,7 +81,7 @@ server <- function(input, output, session) {
       df,
       x = ~year,
       y = ~nb_sujets,
-      color = ~chaine,          # <— une couleur par chaîne
+      color = ~chaine,
       type = "scatter",
       mode = "lines+markers"
     ) %>%
@@ -107,6 +107,34 @@ server <- function(input, output, session) {
       </p>
     ")
   })
+  
+  filtered_stack <- reactive({
+    req(input$year_stack_id, input$chaines_stack_id)
+    
+    themes_par_annees %>%
+      filter(
+        year == input$year_stack_id,
+        chaine %in% input$chaines_stack_id
+      )
+  })
+  
+  output$plot_stack_themes <- renderPlotly({
+    df <- filtered_stack()
+    
+    gg <- ggplot(df, aes(x = chaine, y = nb_sujets, fill = theme)) +
+      geom_col() +                      
+      theme_minimal() +
+      labs(
+        title = paste0("Nombre de sujets par thème et par chaine — ", input$year_stack_id),
+        x = "Chaîne",
+        y = "Nombre de sujets",
+        fill = "Thème"
+      ) +
+      theme(axis.text.x = element_text(angle = 45, hjust = 1))
+    
+    ggplotly(gg)
+  })
+  
   # ---------------------------------------------------
   # AXE 3 : Rapport à l'information
   # ---------------------------------------------------

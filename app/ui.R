@@ -66,6 +66,24 @@ dashboardPage(
                plotlyOutput("plot_theme"),
                br(), hr(),
                
+               h3("Répartition des sujets par chaine"),
+               fluidRow(
+                 column(6,
+                        selectInput("year_stack_id", "Choisissez l'année", choices = liste_annees,
+                                    selected = max(liste_annees))
+                 ),
+                 column(6,
+                        selectInput("chaines_stack_id", "Choisissez la/les chaîne(s)",
+                                    choices = liste_chaines,
+                                    selected = liste_chaines[1:2],
+                                    multiple = TRUE)
+                 )
+               ),
+               
+               plotlyOutput("plot_stack_themes"),
+               br(), hr(),
+               
+               
                h3("Proximité entre chaînes selon les thèmes"),
                plotlyOutput("plot_proximite_rf"),
                uiOutput("comment_proximite"),
