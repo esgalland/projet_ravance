@@ -138,7 +138,6 @@ importance_df <- data.frame(
 #### AJOUT AXE 3 — Rapport des Français à l'information 
 base_raw <- read_excel("../data/base_arcom.xlsx")
 
-# selection des variables
 donnees_axe3 <- base_raw %>%
   select(
     genre = RS1_R,
@@ -177,39 +176,36 @@ donnees_axe3$confiance_info <- factor(
              "Pas du tout d'accord")
 )
 
+# SCORE NUMÉRIQUE 
+donnees_axe3$confiance_score <- as.numeric(donnees_axe3$confiance_info)
+
 choix_age_info <- levels(donnees_axe3$age)
 choix_genre_info <- levels(donnees_axe3$genre)
 choix_media_info <- levels(donnees_axe3$media_principal)
 choix_confiance_info <- levels(donnees_axe3$confiance_info)
 
+donnees_axe3_clean <- donnees_axe3 %>%
+  filter(
+    !is.na(age),
+    !is.na(genre),
+    !is.na(media_principal),
+    !is.na(confiance_info)
+  )
 
 ## Heatmap Média × Confiance 
-table_media_confiance <- donnees_axe3 %>%
-  filter(!is.na(media_principal), !is.na(confiance_info)) %>%
+table_media_confiance <- donnees_axe3_clean %>%
   group_by(media_principal, confiance_info) %>%
   summarise(n = n(), .groups = "drop") %>%
   mutate(
     confiance_info = factor(
       confiance_info,
-      levels = c("Tout à fait d'accord", 
+      levels = c("Tout à fait d'accord",
                  "Plutôt d'accord",
                  "Plutôt pas d'accord",
                  "Pas du tout d'accord")
     )
   )
 
-# Axe 3-  Confiance moyenne dans l'information selon l'âge
-# Recodage du facteur confiance_info
-donnees_axe3$confiance_info <- factor(
-  donnees_axe3$confiance_info,
-  levels = c("Tout à fait d'accord",
-             "Plutôt d'accord",
-             "Plutôt pas d'accord",
-             "Pas du tout d'accord")
-)
-
-# Création d'un score numérique 1 → 4
-donnees_axe3$confiance_score <- as.numeric(donnees_axe3$confiance_info)
 
 
 

@@ -13,18 +13,16 @@ dashboardPage(
                                  label = "Choisissez le média",
                                  choices = choix_media)
     ),
-   conditionalPanel(
+
+  conditionalPanel(
     condition = "input.tabselected==3",
     selectInput("age_info_id",
-                "Choisissez une tranche d'âge :",
+                "Choisissez une ou plusieurs tranches d'âge :",
                 choices = choix_age_info,
-                selected = choix_age_info[1]),
-    selectInput("genre_info_id",
-                "Choisissez un genre :",
-                choices = choix_genre_info,
-                selected = choix_genre_info[1])
-    )
-  ),
+                selected = c("15-17","60-69"),
+                multiple = TRUE)
+  )
+    ),
   
   dashboardBody(
     # Code CSS pour faire que le side bar bouge quand on scrolle dans les deux sens sur la page
@@ -118,7 +116,13 @@ dashboardPage(
                br(), hr(),
                h3("Confiance moyenne selon l'âge"),
                plotlyOutput("plot_confiance_age"),
-               br(), hr()
+               br(), hr(),
+               
+               h3("Confiance moyenne — tous âges confondus (Hommes / Femmes)"),
+               plotlyOutput("plot_confiance_moy_genre"),
+               htmlOutput("insight_confiance_moy_genre"),
+               br(), hr(),
+               
                
       ),
       id = "tabselected"
